@@ -84,6 +84,11 @@ function populate(data) {
   scaleX.domain([0, d3.max(data, function(d) { return Math.max(d.male, d.female); })]);
   scaleY.domain(data.map(function(d) { return d.age; }));
 
+  var offset = height - d3.extent(scaleY.range())[1] - scaleY.rangeBand();
+  maleBars.transition().attr("transform", "translate(0," + offset + ")");
+  femaleBars.transition().attr("transform", "translate(0," + offset + ")");
+  axisY.transition().attr("transform", "translate(0, " + (offset + margin.top) + ")");
+
   var maleBar = maleBars.selectAll(".bar")
     .data(data);
 

@@ -51,7 +51,6 @@ var femaleGuidesX = femaleChart.append("g")
       .attr("class", "guides");
 
 var ageGroups = container.append("g")
-    .attr("transform", "translate(" + (margin.left + width + margin.gutter / 2) + "," + margin.top + ")")
     .attr("class", "y axis");
 
 d3.tsv("data.tsv", type, function (error, d) {
@@ -74,6 +73,11 @@ function populate(data) {
   scaleX.domain([0, d3.max(data, function(d) { return Math.max(d.male, d.female); })]);
   scaleY.domain(data.map(function(d) { return d.age; }));
   invertedScaleX = scaleX.copy().range([width, 0]);
+
+  var offset = height - d3.extent(scaleY.range())[1] - scaleY.rangeBand();
+  maleBars.transition().attr("transform", "translate(0," + offset + ")");
+  femaleBars.transition().attr("transform", "translate(0," + offset + ")");
+  ageGroups.transition().attr("transform", "translate(" + (margin.left + width + margin.gutter / 2) + ", " + (offset + margin.top) + ")");
 
   var maleBar = maleBars.selectAll(".bar")
       .data(data);
