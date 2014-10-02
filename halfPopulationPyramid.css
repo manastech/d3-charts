@@ -1,0 +1,53 @@
+.bar {
+  opacity: 0.6;
+}
+
+.male .bar {
+  fill: #1f77b4;
+}
+
+.female .bar {
+  fill: #e377c2;
+}
+
+.axis text {
+  font: 10px sans-serif;
+  fill: #999;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #999;
+  shape-rendering: crispEdges;
+}
+
+.y.axis text {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.y.axis path,
+.y.axis line {
+  display:none;
+}
+
+.guides text {
+  fill: none;
+}
+
+.guides line {
+  fill: none;
+  stroke: #FFF;
+  opacity: 0.25;
+  shape-rendering: crispEdges;
+}
+
+.guides > g:first-of-type {
+  display: none;
+}
+
+.label {
+  font: 10px sans-serif;
+  fill: #999;
+}

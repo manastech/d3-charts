@@ -1,0 +1,70 @@
+.bar {
+  opacity: 0.6;
+}
+
+.bar:hover {
+  opacity: 1;
+}
+
+.male .bar {
+  fill: #1f77b4;
+}
+
+.female .bar {
+  fill: #e377c2;
+}
+
+.axis text {
+  font: 10px sans-serif;
+  fill: #999;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #999;
+  shape-rendering: crispEdges;
+}
+
+.y.axis text {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.guides text {
+  fill: none;
+}
+
+.guides line {
+  fill: none;
+  stroke: #FFF;
+  opacity: 0.25;
+  shape-rendering: crispEdges;
+}
+
+.guides > g:first-of-type {
+  display: none;
+}
+
+.value {
+  font: 10px sans-serif;
+  fill: #FFF;
+  dominant-baseline: middle;
+}
+
+.male .value {
+  text-anchor: begin;
+}
+
+.female .value {
+  text-anchor: end;
+}
+
+.label {
+  font: 10px sans-serif;
+  fill: #999;
+}
+
+.male .label {
+  text-anchor: end;
+}
