@@ -50,4 +50,5 @@
 .label {
   font: 10px sans-serif;
   fill: #999;
+  dominant-baseline: middle;
 }

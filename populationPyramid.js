@@ -1,4 +1,4 @@
-var margin = {top: 0, right: 20, bottom: 30, left: 20, gutter:50},
+var margin = {top: 0, right: 20, bottom: 35, left: 20, gutter:50},
     width = (400 - margin.left - margin.right - margin.gutter) / 2,
     height = 300 - margin.top - margin.bottom,
     data, lastData, lastScaleY;
@@ -17,11 +17,11 @@ var maleChart = container.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .attr("class", "male");
 
-maleChart.append("text")
+var maleLabel = maleChart.append("text")
     .attr("class", "label")
     .attr("x", width)
     .attr("y", height + margin.top + margin.bottom)
-    .text("Male");
+    .attr("dy", "-0.35em");
 
 var maleBars = maleChart.append("g");
 
@@ -36,10 +36,10 @@ var femaleChart = container.append("g")
     .attr("transform", "translate(" + (margin.left + width + margin.gutter) + "," + margin.top + ")")
     .attr("class", "female");
 
-femaleChart.append("text")
+var femaleLabel = femaleChart.append("text")
     .attr("class", "label")
     .attr("y", height + margin.top + margin.bottom)
-    .text("Female");
+    .attr("dy", "-0.35em");
 
 var femaleBars = femaleChart.append("g");
 
@@ -59,8 +59,8 @@ d3.tsv("data.tsv", type, function (error, d) {
 });
 
 function prefix(d) {
-  var prefix = d3.formatPrefix(d);
-  return d3.round(prefix.scale(d), 1) + prefix.symbol;
+  var prefix = d3.formatPrefix(scaleX.domain()[1], 0);
+  return d3.round(prefix.scale(d), 1);
 }
 
 function type(d) {
@@ -209,6 +209,9 @@ function populate(data) {
   ageGroup.exit().transition()
       .attr("y", function(d) { return (data.length - lastData.length) * scaleY.rangeBand(); })
       .remove();
+  var symbol = d3.formatPrefix(scaleX.domain()[1], 0).symbol;
+  femaleLabel.text("Female" + (symbol.length? " (" + symbol + ")" : ""));
+  maleLabel.text("Male" + (symbol.length? " (" + symbol + ")" : ""));
 
   lastData = data;
   lastScaleY = scaleY;

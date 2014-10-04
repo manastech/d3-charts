@@ -1,5 +1,5 @@
 
-var margin = {top: 0, right: 20, bottom: 30, left: 50},
+var margin = {top: 0, right: 20, bottom: 35, left: 50},
     width = 400 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom,
     refSize = 10,
@@ -42,11 +42,11 @@ maleRef.append("circle")
     .attr("class", "bar")
     .attr("cy", -refSize / 2)
     .attr("r", refSize / 2)
-    .text("Male");
 
 maleRef.append("text")
     .attr("class", "label")
     .attr("x", "8")
+    .attr("dy", "-0.35em")
     .text("Male");
 
 var femaleRef = chart.append("g")
@@ -57,12 +57,19 @@ femaleRef.append("circle")
     .attr("class", "bar")
     .attr("cy", -refSize / 2)
     .attr("r", refSize / 2)
-    .text("Female");
 
 femaleRef.append("text")
     .attr("class", "label")
     .attr("x", "8")
+    .attr("dy", "-0.35em")
     .text("Female");
+
+var label = chart.append("g")
+    .attr("transform", "translate(" + width + "," + (height + margin.bottom) + ")")
+  .append("text")
+    .attr("class", "label")
+    .attr("dy", "-0.35em")
+    .style("text-anchor", "end");
 
 d3.tsv("data.tsv", type, function (error, d) {
   data = d;
@@ -70,8 +77,8 @@ d3.tsv("data.tsv", type, function (error, d) {
 });
 
 function prefix(d) {
-  var prefix = d3.formatPrefix(d, 0);
-  return prefix.scale(d) + prefix.symbol;
+  var prefix = d3.formatPrefix(scaleX.domain()[1], 0);
+  return prefix.scale(d);
 }
 
 function type(d) {
@@ -83,6 +90,9 @@ function type(d) {
 function populate(data) {
   scaleX.domain([0, d3.max(data, function(d) { return Math.max(d.male, d.female); })]);
   scaleY.domain(data.map(function(d) { return d.age; }));
+
+  var symbol = d3.formatPrefix(scaleX.domain()[1], 0).symbol;
+  label.text("Quantity" + (symbol.length? " (" + symbol + ")" : ""));
 
   var offset = height - d3.extent(scaleY.range())[1] - scaleY.rangeBand();
   maleBars.transition().attr("transform", "translate(0," + offset + ")");
