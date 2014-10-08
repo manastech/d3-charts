@@ -1,70 +1,70 @@
-.bar {
+.populationPyramid .bar {
   opacity: 0.6;
 }
 
-.bar:hover {
+.populationPyramid .bar:hover {
   opacity: 1;
 }
 
-.male .bar {
+.populationPyramid .male .bar {
   fill: #1f77b4;
 }
 
-.female .bar {
+.populationPyramid .female .bar {
   fill: #e377c2;
 }
 
-.axis text {
+.populationPyramid .axis text {
   font: 10px sans-serif;
   fill: #999;
 }
 
-.axis path,
-.axis line {
+.populationPyramid .axis path,
+.populationPyramid .axis line {
   fill: none;
   stroke: #999;
   shape-rendering: crispEdges;
 }
 
-.y.axis text {
+.populationPyramid .y.axis text {
   text-anchor: middle;
   dominant-baseline: middle;
 }
 
-.guides text {
+.populationPyramid .guides text {
   fill: none;
 }
 
-.guides line {
+.populationPyramid .guides line {
   fill: none;
   stroke: #FFF;
   opacity: 0.25;
   shape-rendering: crispEdges;
 }
 
-.guides > g:first-of-type {
+.populationPyramid .guides > g:first-of-type {
   display: none;
 }
 
-.value {
+.populationPyramid .value {
   font: 10px sans-serif;
   fill: #FFF;
   dominant-baseline: middle;
 }
 
-.male .value {
+.populationPyramid .male .value {
   text-anchor: begin;
 }
 
-.female .value {
+.populationPyramid .female .value {
   text-anchor: end;
 }
 
-.label {
+.populationPyramid .label {
   font: 10px sans-serif;
   fill: #999;
 }
 
-.male .label {
+.populationPyramid .male .label {
   text-anchor: end;
 }

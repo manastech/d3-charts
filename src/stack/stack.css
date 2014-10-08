@@ -1,16 +1,16 @@
-.axis text {
+.stackChart .axis text {
   font: 10px sans-serif;
   fill: #999;
 }
 
-.axis path,
-.axis line {
+.stackChart .axis path,
+.stackChart .axis line {
   fill: none;
   stroke: #999;
   shape-rendering: crispEdges;
 }
 
-.label {
+.stackChart .label {
   font: 10px sans-serif;
   fill: #999;
   dominant-baseline: middle;

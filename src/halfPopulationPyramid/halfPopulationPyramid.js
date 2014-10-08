@@ -71,7 +71,7 @@ var label = chart.append("g")
     .attr("dy", "-0.35em")
     .style("text-anchor", "end");
 
-d3.tsv("data.tsv", type, function (error, d) {
+d3.tsv("../../data/data.tsv", type, function (error, d) {
   data = d;
   populate(data);
 });

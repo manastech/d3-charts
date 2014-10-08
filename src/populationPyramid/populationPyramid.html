@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <script src="../../vendor/d3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+  <script src="populationPyramid.js"></script>
+  <link rel="stylesheet" type="text/css" href="populationPyramid.css">
+
+  <script type="text/javascript">
+    var randomizeData = function(data, i) {
+      var exponent = Math.round(Math.max(1, Math.random() * 10));
+      return data
+        .filter(function (item) { return Math.random() > 0.4;})
+        .map(function(item) {
+          return {
+            age: item.age,
+            male: Math.round(Math.random() * Math.pow(10, exponent)),
+            female: Math.round(Math.random() * Math.pow(10, exponent))
+          };
+        });
+    };
+
+    var type = function(d) {
+      d.male = +d.male;
+      d.female = +d.female;
+      return d;
+    }
+
+    var getAttr = function(attrName) {
+      return $('#'+attrName).val();
+    }
+
+    window.onload = function() {
+      var chart1 = populationPyramid();
+      var chart2 = populationPyramid();
+      var container1 = d3.select("#example1");
+      var container2 = d3.select("#example2");
+
+      var data;
+
+      d3.tsv("../../data/data.tsv", type, function (error, d) {
+        data = d;
+        container1.datum(data).call(chart1);
+        container2.datum(data).call(chart2);
+      });
+
+      $('#randomise').on('click', function(evt){
+        evt.preventDefault();
+        chart1.redraw(randomizeData(data));
+        chart2.redraw(randomizeData(data));
+      });
+
+      $('input[type="range"]').on('change', function() {
+        chart1.height(+getAttr('height')).width(+getAttr('width')).redraw();
+        chart2.height(+getAttr('height')).width(+getAttr('width')).redraw();
+      })
+    };
+  </script>
+</head>
+<body>
+  <h1>Population pyramid</h1>
+  <svg id="example1"></svg>
+  <svg id="example2"></svg>
+
+  <fieldset style="width: 800px;">
+    <legend>Properties</legend>
+    <p>
+      <label>Height:</label>
+      <input id="height" type="range" min="100" max="1000" value="300"></input>
+    </p>
+    <p>
+      <label>Width:</label>
+      <input id="width" type="range" min="100" max="1000" value="400"></input>
+    </p>
+    <p>
+      <a href="#" id="randomise">Randomise charts</a>
+    </p>
+  </fieldset>
+
+</body>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <script src="../../vendor/d3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+  <script src="stack.js"></script>
+  <link rel="stylesheet" type="text/css" href="stack.css">
+
+  <script type="text/javascript">
+    var type = function(d) {
+      d.male = +d.male;
+      d.female = +d.female;
+      return d;
+    }
+
+    var getAttr = function(attrName) {
+      return $('#'+attrName).val();
+    }
+
+    window.onload = function() {
+      var chart = stackChart();
+      var container = d3.select("#example");
+      var data;
+      var set = 0;
+
+      var type = function(d) {
+        d.date = new Date(+d.date);
+        d.male = +d.male;
+        d.female = +d.female;
+        d.unknown = +d.unknown;
+        return d;
+      };
+
+      var dataset = function() {
+        return "../../data/stack" + set + ".csv";
+      };
+
+      $('#toggle').on('click', function(evt) {
+        evt.preventDefault();
+        set = set? 0 : 1;
+        d3.csv(dataset(), type, function(error, d){
+          chart.redraw(d);
+        });
+      });
+
+      $('input[type="range"]').on('change', function() {
+        chart.height(+getAttr('height')).width(+getAttr('width')).redraw();
+      });
+
+      d3.csv(dataset(), type, function(error, d){
+        container.datum(d).call(chart);
+      });
+    };
+  </script>
+</head>
+<body>
+  <h1>Stack chart</h1>
+  <svg id="example"></svg>
+
+  <fieldset style="width: 800px;">
+    <legend>Properties</legend>
+    <p>
+      <label>Height:</label>
+      <input id="height" type="range" min="100" max="1000" value="300"></input>
+    </p>
+    <p>
+      <label>Width:</label>
+      <input id="width" type="range" min="100" max="1000" value="400"></input>
+    </p>
+    <p>
+      <a href="#" id="toggle">Toggle chart dataset</a>
+    </p>
+  </fieldset>
+
+</body>
