@@ -1,3 +1,13 @@
+text {
+  font: 10px sans-serif;
+  fill: #999;
+}
+
+.value {
+  fill: #FFF;
+  dominant-baseline: middle;
+}
+
 .bar {
   opacity: 0.6;
 }
@@ -10,13 +20,24 @@
   fill: #1f77b4;
 }
 
+.male .value {
+  text-anchor: begin;
+}
+
+.male.label {
+  text-anchor: end;
+}
+
 .female .bar {
   fill: #e377c2;
 }
 
-.axis text {
-  font: 10px sans-serif;
-  fill: #999;
+.female .value {
+  text-anchor: end;
+}
+
+.female.label {
+  text-anchor: begin;
 }
 
 .axis path,
@@ -26,7 +47,7 @@
   shape-rendering: crispEdges;
 }
 
-.y.axis text {
+.group .label {
   text-anchor: middle;
   dominant-baseline: middle;
 }
@@ -46,25 +67,6 @@
   display: none;
 }
 
-.value {
-  font: 10px sans-serif;
-  fill: #FFF;
-  dominant-baseline: middle;
-}
-
-.male .value {
-  text-anchor: begin;
-}
-
-.female .value {
-  text-anchor: end;
-}
-
-.label {
-  font: 10px sans-serif;
-  fill: #999;
-}
-
-.male .label {
-  text-anchor: end;
+.reference {
+  opacity: 0.25;
 }

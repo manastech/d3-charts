@@ -122,7 +122,11 @@ function toggle() {
 function populate(error, d) {
   data = d;
   columns = Object.keys(data[0]).splice(1);
-  layers = stack(d3.range(columns.length).map(function(i) { var key = columns[i];return data.map(function (d) { return {x:d.date, y:d[key]}});}));
+  layers = stack(d3.range(columns.length).map(function(i) {
+    var key = columns[i];
+    return data.map(function (d) {
+      return {x:d.date, y:d[key]}});
+  }));
   scaleX.domain(d3.extent(data.map(function (d) {return d.date;})));
   scaleY.domain([0, d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; });})])
   var path = areas.selectAll("path").data(layers);
