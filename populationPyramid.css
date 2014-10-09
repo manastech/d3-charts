@@ -8,6 +8,18 @@ text {
   dominant-baseline: middle;
 }
 
+.reference {
+  opacity: 0.25;
+}
+
+.male .reference {
+  fill: #1f77b4;
+}
+
+.female .reference {
+  fill: #e377c2;
+}
+
 .bar {
   opacity: 0.6;
 }
@@ -65,8 +77,4 @@ text {
 
 .guides > g:first-of-type {
   display: none;
-}
-
-.reference {
-  opacity: 0.25;
 }
