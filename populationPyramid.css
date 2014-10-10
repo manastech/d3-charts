@@ -6,6 +6,7 @@ text {
 .value {
   fill: #FFF;
   dominant-baseline: middle;
+  pointer-events:none;
 }
 
 .reference {
@@ -73,6 +74,7 @@ text {
   stroke: #FFF;
   opacity: 0.25;
   shape-rendering: crispEdges;
+  pointer-events:none;
 }
 
 .guides > g:first-of-type {

@@ -9,7 +9,11 @@ var container = d3.select(".chart")
 var chart = container.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var areas = chart.append("g");
+var areas = chart.append("g")
+    .attr("class", "data");
+
+var lines = chart.append("g")
+    .attr("class", "last-period");
 
 var axisX = chart.append("g")
       .attr("class", "x axis")
@@ -28,27 +32,33 @@ var stack = d3.layout.stack().offset("baseline");
 
 var format = d3.time.format("%Y-%m");
     
-var area = d3.svg.area()
+var areaGenerator = d3.svg.area()
     .x(function(d) { return scaleX(d.x);})
     .y0(function(d) { return scaleY(d.y0);})
     .y1(function(d) { return scaleY(d.y0 + d.y);})
     .interpolate("basis");
 
-var color = ["#ff1e00", "#f89302", "#a3d215", "#31bfb0", "#6a50b2", "#e4ec05"];
+var lineGenerator = d3.svg.line()
+    .x(function(d) { return scaleX(d.x);})
+    .y(function(d) { return scaleY(d.y0 + d.y);})
+    .interpolate("basis");
 
 var set = 0;
 
 var refSize = 10;
 
-var maleRef = chart.append("g")
+var references = chart.append("g");
+
+var dataReferences = references.append("g")
+    .attr("class", "data")
+
+var maleRef = dataReferences.append("g")
+    .attr("class", "layer")
     .attr("transform", "translate(0," + (height + margin.bottom) + ")");
 
 maleRef.append("circle")
-    .attr("class", "bar")
     .attr("cy", -refSize / 2)
     .attr("r", refSize / 2)
-    .attr("fill", color[0])
-    .attr("opacity", 0.5)
 
 maleRef.append("text")
     .attr("class", "label")
@@ -56,15 +66,13 @@ maleRef.append("text")
     .attr("dy", "-0.35em")
     .text("Male");
 
-var femaleRef = chart.append("g")
+var femaleRef = dataReferences.append("g")
+    .attr("class", "layer")
     .attr("transform", "translate(50," + (height + margin.bottom) + ")");
 
 femaleRef.append("circle")
-    .attr("class", "bar")
     .attr("cy", -refSize / 2)
     .attr("r", refSize / 2)
-    .attr("fill", color[1])
-    .attr("opacity", 0.5)
 
 femaleRef.append("text")
     .attr("class", "label")
@@ -72,21 +80,36 @@ femaleRef.append("text")
     .attr("dy", "-0.35em")
     .text("Female");
 
-var unknownRef = chart.append("g")
+var unknownRef = dataReferences.append("g")
+    .attr("class", "layer")
     .attr("transform", "translate(110," + (height + margin.bottom) + ")");
 
 unknownRef.append("circle")
-    .attr("class", "bar")
     .attr("cy", -refSize / 2)
     .attr("r", refSize / 2)
-    .attr("fill", color[2])
-    .attr("opacity", 0.5)
 
 unknownRef.append("text")
     .attr("class", "label")
     .attr("x", "8")
     .attr("dy", "-0.35em")
     .text("Unknown");
+
+var lastPeriodReferences = references.append("g")
+    .attr("class", "last-period");
+
+var totalRef = lastPeriodReferences.append("g")
+    .attr("class", "layer")
+    .attr("transform", "translate(175," + (height + margin.bottom) + ")");
+
+totalRef.append("circle")
+    .attr("cy", -refSize / 2)
+    .attr("r", refSize / 2)
+
+totalRef.append("text")
+    .attr("class", "label")
+    .attr("x", "8")
+    .attr("dy", "-0.35em")
+    .text("Last Period");
 
 var label = chart.append("g")
     .attr("transform", "translate(10,0)")
@@ -97,7 +120,7 @@ var label = chart.append("g")
     .style("dominant-baseline", "hanging")
 
 
-var data, columns, layers;
+var data, lastPeriodData;
 
 
 function type(d) {
@@ -115,28 +138,40 @@ function prefix(d) {
 }
 
 function toggle() {
-  set = set? 0 : 1;
-  d3.csv("data" + set + ".csv", type, populate);
+  set = !set;
+  d3.csv("data" + (set? 1:0) + ".csv", type, function (d) {
+    data = d;
+    d3.csv("data" + (set? 0:1) + ".csv", type, function (d) {
+      lastPeriodData = d.map(function(d, i) {
+        d.date = data[i].date;
+        return d;
+      })
+      populate(data, lastPeriodData);
+    });
+  });
 }
 
-function populate(error, d) {
-  data = d;
-  columns = Object.keys(data[0]).splice(1);
-  layers = stack(d3.range(columns.length).map(function(i) {
+function populate(data, lastPeriodData) {
+  
+  var columns = Object.keys(data[0]).splice(1);
+
+  var dataLayers = stack(d3.range(columns.length).map(function(i) {
     var key = columns[i];
     return data.map(function (d) {
       return {x:d.date, y:d[key]}});
   }));
-  scaleX.domain(d3.extent(data.map(function (d) {return d.date;})));
-  scaleY.domain([0, d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; });})])
-  var path = areas.selectAll("path").data(layers);
 
-  path.enter().append("path")
-      .style("fill", function(d, i) { return color[i];})
-      .style("opacity", 0.5);
-    
-  path.transition()
-    .attr("d", area);
+  var lastPeriodLayers = stack(d3.range(columns.length).map(function(i) {
+    var key = columns[i];
+    return lastPeriodData.map(function (d) {
+      return {x:d.date, y:d[key]}});
+  }));
+
+  scaleX.domain(d3.extent(data.map(function (d) {return d.date;})));
+  scaleY.domain([0, d3.max(dataLayers.concat(lastPeriodLayers || []), function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; });})])
+
+  draw(dataLayers, areas, areaGenerator);
+  draw([lastPeriodLayers[columns.length - 1]], lines, lineGenerator);
 
   axisX.transition()
       .call(d3.svg.axis()
@@ -157,7 +192,16 @@ function populate(error, d) {
 
   var symbol = d3.formatPrefix(scaleY.domain()[1], 0).symbol;
   label.text("Quantity" + (symbol.length? " (" + symbol + ")" : ""))
+}
 
+function draw(data, container, pathGenerator) {
+  var path = container.selectAll("path").data(data);
+  
+  path.enter().append("path")
+      .attr("class", "layer");
+    
+  path.transition()
+    .attr("d", pathGenerator);
 }
 
 document.addEventListener("mouseup", function (e) {
