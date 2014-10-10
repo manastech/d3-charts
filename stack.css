@@ -50,7 +50,7 @@
   opacity: 0.6;
   stroke:#000;
   stroke-width:1px;
-  stroke-dasharray:3,3
+  stroke-dasharray:4,2
 }
 
 .last-period .layer text {
