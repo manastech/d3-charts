@@ -43,7 +43,7 @@ var femaleLabel = container.append("text")
     .attr("y", height + margin.top + margin.bottom)
     .attr("dy", "-0.35em")
 
-d3.tsv("data.tsv", type, function (error, d) {
+d3.tsv("populationPyramid.tsv", type, function (error, d) {
   data = d;
   populate(data);
 });
@@ -120,7 +120,7 @@ function populate(data, referenceData) {
 
   male.select(".value").transition()
       .attr("x", function (d) { return width - scaleX(d.male);})
-      .attr("y", scaleY.rangeBand() / 2)
+      .attr("y", referenceBarHeight + barHeight / 2)
       .attr("dx", "5")
       .text(function (d) { return prefix(d.male)});
 
@@ -179,7 +179,7 @@ function populate(data, referenceData) {
 
   female.select(".value").transition()
       .attr("x", function (d) { return scaleX(d.female);})
-      .attr("y", scaleY.rangeBand() / 2)
+      .attr("y", referenceBarHeight + barHeight / 2)
       .attr("dx", "-5")
       .text(function (d) { return prefix(d.female)});
 

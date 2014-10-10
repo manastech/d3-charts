@@ -139,9 +139,9 @@ function prefix(d) {
 
 function toggle() {
   set = !set;
-  d3.csv("data" + (set? 1:0) + ".csv", type, function (d) {
+  d3.csv("stack" + (set? 1:0) + ".csv", type, function (d) {
     data = d;
-    d3.csv("data" + (set? 0:1) + ".csv", type, function (d) {
+    d3.csv("stack" + (set? 0:1) + ".csv", type, function (d) {
       lastPeriodData = d.map(function(d, i) {
         d.date = data[i].date;
         return d;

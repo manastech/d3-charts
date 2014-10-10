@@ -1,4 +1,3 @@
-
 var margin = {top: 0, right: 20, bottom: 35, left: 50},
     width = 400 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom,
@@ -71,7 +70,7 @@ var label = chart.append("g")
     .attr("dy", "-0.35em")
     .style("text-anchor", "end");
 
-d3.tsv("data.tsv", type, function (error, d) {
+d3.tsv("halfPopulationPyramid.tsv", type, function (error, d) {
   data = d;
   populate(data);
 });
