@@ -1,3 +1,26 @@
+.populationPyramid text {
+  font: 10px sans-serif;
+  fill: #999;
+}
+
+.populationPyramid .value {
+  fill: #FFF;
+  dominant-baseline: middle;
+  pointer-events:none;
+}
+
+.populationPyramid .reference {
+  opacity: 0.25;
+}
+
+.populationPyramid .male .reference {
+  fill: #1f77b4;
+}
+
+.populationPyramid .female .reference {
+  fill: #e377c2;
+}
+
 .populationPyramid .bar {
   opacity: 0.6;
 }
@@ -10,13 +33,24 @@
   fill: #1f77b4;
 }
 
+.populationPyramid .male .value {
+  text-anchor: begin;
+}
+
+.populationPyramid .male.label {
+  text-anchor: end;
+}
+
 .populationPyramid .female .bar {
   fill: #e377c2;
 }
 
-.populationPyramid .axis text {
-  font: 10px sans-serif;
-  fill: #999;
+.populationPyramid .female .value {
+  text-anchor: end;
+}
+
+.populationPyramid .female.label {
+  text-anchor: begin;
 }
 
 .populationPyramid .axis path,
@@ -26,7 +60,7 @@
   shape-rendering: crispEdges;
 }
 
-.populationPyramid .y.axis text {
+.populationPyramid .group .label {
   text-anchor: middle;
   dominant-baseline: middle;
 }
@@ -40,31 +74,9 @@
   stroke: #FFF;
   opacity: 0.25;
   shape-rendering: crispEdges;
+  pointer-events:none;
 }
 
 .populationPyramid .guides > g:first-of-type {
   display: none;
-}
-
-.populationPyramid .value {
-  font: 10px sans-serif;
-  fill: #FFF;
-  dominant-baseline: middle;
-}
-
-.populationPyramid .male .value {
-  text-anchor: begin;
-}
-
-.populationPyramid .female .value {
-  text-anchor: end;
-}
-
-.populationPyramid .label {
-  font: 10px sans-serif;
-  fill: #999;
-}
-
-.populationPyramid .male .label {
-  text-anchor: end;
 }
