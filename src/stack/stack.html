@@ -21,8 +21,7 @@
     window.onload = function() {
       var chart = stackChart();
       var container = d3.select("#example");
-      var data;
-      var set = 0;
+      var data1, data2, datatmp;
 
       var type = function(d) {
         d.date = new Date(+d.date);
@@ -32,25 +31,30 @@
         return d;
       };
 
-      var dataset = function() {
+      var dataset = function(set) {
         return "../../data/stack" + set + ".csv";
       };
 
       $('#toggle').on('click', function(evt) {
         evt.preventDefault();
-        set = set? 0 : 1;
-        d3.csv(dataset(), type, function(error, d){
-          chart.redraw(d);
-        });
+        datatmp = data1;
+        data1 = data2;
+        data2 = datatmp;
+        chart.redraw(data1, data2);
       });
 
       $('input[type="range"]').on('change', function() {
         chart.height(+getAttr('height')).width(+getAttr('width')).redraw();
       });
 
-      d3.csv(dataset(), type, function(error, d){
-        container.datum(d).call(chart);
+      d3.csv(dataset(0), type, function(error, d1){
+        d3.csv(dataset(1), type, function(error, d2){
+          data1 = d1;
+          data2 = d2;
+          container.call(chart, d1, d2);
+        });
       });
+
     };
   </script>
 </head>

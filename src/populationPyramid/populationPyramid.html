@@ -10,15 +10,26 @@
   <script type="text/javascript">
     var randomizeData = function(data, i) {
       var exponent = Math.round(Math.max(1, Math.random() * 10));
-      return data
-        .filter(function (item) { return Math.random() > 0.4;})
-        .map(function(item) {
-          return {
-            age: item.age,
-            male: Math.round(Math.random() * Math.pow(10, exponent)),
-            female: Math.round(Math.random() * Math.pow(10, exponent))
-          };
-        });
+      var referenceRandomData = [];
+      var filtered = data.filter(function (item) { return Math.random() > 0.4;})
+
+      var randomData = filtered.map(function(item) {
+        return {
+          age: item.age,
+          male: Math.round(Math.random() * Math.pow(10, exponent)),
+          female: Math.round(Math.random() * Math.pow(10, exponent))
+        };
+      });
+
+      var randomReferenceData = filtered.map(function(item) {
+        return {
+          age: item.age,
+          male: Math.round(Math.random() * Math.pow(10, exponent)),
+          female: Math.round(Math.random() * Math.pow(10, exponent))
+        };
+      });
+
+      return {data: randomData, reference: randomReferenceData};
     };
 
     var type = function(d) {
@@ -47,8 +58,10 @@
 
       $('#randomise').on('click', function(evt){
         evt.preventDefault();
-        chart1.redraw(randomizeData(data));
-        chart2.redraw(randomizeData(data));
+        var data1 = randomizeData(data);
+        chart1.redraw(data1.data, data1.reference);
+        var data2 = randomizeData(data);
+        chart2.redraw(data2.data, data2.reference);
       });
 
       $('input[type="range"]').on('change', function() {

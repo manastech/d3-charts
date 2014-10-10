@@ -12,139 +12,146 @@ function populationPyramid() {
   var my = function(selection) {
 
     var scaleX = d3.scale.linear();
+
     var scaleY = d3.scale.ordinal();
 
     var container = selection
         .attr("class", "populationPyramid");
 
-    var maleChart = container.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("class", "male");
+    var groups = container.append("g");
 
-    var maleLabel = maleChart.append("text")
-        .attr("class", "label")
-        .attr("dy", "-0.35em");
+    var maleAxisX = container.append("g")
+        .attr("class", "axis x");
 
-    var maleBars = maleChart.append("g");
+    var maleGuidesX = container.append("g")
+          .attr("class", "guides")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var maleAxisX = maleChart.append("g")
-        .attr("class", "x axis");
+    var maleLabel = container.append("text")
+        .attr("class", "male label")
+        .attr("dy", "-0.35em")
 
-    var maleGuidesX = maleChart.append("g")
+    var femaleAxisX = container.append("g")
+        .attr("class", "axis x");
+
+    var femaleGuidesX = container.append("g")
           .attr("class", "guides");
 
-    var femaleChart = container.append("g")
-        .attr("class", "female");
-
-    var femaleLabel = femaleChart.append("text")
-        .attr("class", "label")
+    var femaleLabel = container.append("text")
+        .attr("class", "female label")
         .attr("dy", "-0.35em");
-
-    var femaleBars = femaleChart.append("g");
-
-    var femaleAxisX = femaleChart.append("g")
-        .attr("class", "x axis");
-
-    var femaleGuidesX = femaleChart.append("g")
-          .attr("class", "guides");
-
-    var ageGroups = container.append("g")
-        .attr("class", "y axis");
 
     var prefix = function(d) {
       var prefix = d3.formatPrefix(scaleX.domain()[1], 0);
       return d3.round(prefix.scale(d), 1);
     }
 
-    my.redraw = function(d) {
+    my.redraw = function(d, rd) {
 
       // Store data in selection if set
       if (arguments.length) selection.datum(d);
       var data = d || selection.datum();
 
+      if (arguments.length > 1) my.referenceData = rd;
+      var referenceData = my.referenceData;
 
-      // Set up scales
-
-      scaleX.range([0, width])
-        .domain([0, d3.max(data, function(d) { return Math.max(d.male, d.female); })]);
-
-      scaleY.rangeRoundBands([height, 0], .2, 0)
-        .domain(data.map(function(d) { return d.age; }));
-
-      var invertedScaleX = scaleX.copy().range([width, 0]);
-
-
-      // Set properties based on size
+      // Set attributes based on height/width
+      scaleX.range([0, width]);
+      scaleY.rangeRoundBands([height, 0], .2, 0);
 
       container
-        .attr("width", width * 2 + margin.left + margin.right + margin.gutter)
-        .attr("height", height + margin.top + margin.bottom);
+          .attr("width", width * 2 + margin.left + margin.right + margin.gutter)
+          .attr("height", height + margin.top + margin.bottom);
+
+      maleAxisX.attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")");
 
       maleLabel
-        .attr("x", width)
-        .attr("y", height + margin.top + margin.bottom)
+          .attr("y", height + margin.top + margin.bottom)
+          .attr("x", margin.left + width);
 
-      maleAxisX
-        .attr("transform", "translate(0," + height + ")");
-
-      femaleChart
-        .attr("transform", "translate(" + (margin.left + width + margin.gutter) + "," + margin.top + ")")
+      femaleAxisX.attr("transform", "translate(" + (margin.left + width + margin.gutter) + "," + (height + margin.top) + ")");
+      femaleGuidesX.attr("transform", "translate(" + (margin.left + width + margin.gutter) + "," + margin.top + ")");
 
       femaleLabel
-        .attr("y", height + margin.top + margin.bottom);
-
-      femaleAxisX
-        .attr("transform", "translate(0," + height + ")");
-
-      var offset = height - d3.extent(scaleY.range())[1] - scaleY.rangeBand();
-      maleBars.transition().attr("transform", "translate(0," + offset + ")");
-      femaleBars.transition().attr("transform", "translate(0," + offset + ")");
-      ageGroups.transition().attr("transform", "translate(" + (margin.left + width + margin.gutter / 2) + ", " + (offset + margin.top) + ")");
+          .attr("x", margin.left + width + margin.gutter)
+          .attr("y", height + margin.top + margin.bottom);
 
 
-      // Male data processing
+      // Bind data and draw
+      scaleX.domain([0, d3.max(data.concat(referenceData || []), function(d) { return Math.max(d.male, d.female); })]);
+      scaleY.domain(data.map(function(d) { return d.age; }));
+      invertedScaleX = scaleX.copy().range([width, 0]);
 
-      var maleBar = maleBars.selectAll(".bar")
+      var offset = height - d3.extent(scaleY.range())[1] - scaleY.rangeBand(),
+          symbol = d3.formatPrefix(scaleX.domain()[1], 0).symbol,
+          barHeight = scaleY.rangeBand() * (referenceData? .8 : 1);
+          referenceBarHeight = scaleY.rangeBand() * (referenceData? .2 : 0);
+
+      groups.transition()
+          .attr("transform", "translate(0," + offset + ")");
+
+      var group = groups.selectAll(".group")
           .data(data);
 
-      maleBar.enter().append("rect")
+      var groupEnter = group.enter().append("g")
+          .attr("class", "group")
+          .attr("transform", function(d) {  var offset = lastData? (lastData.length - data.length) * lastScaleY.rangeBand() : scaleY(d.age);  return "translate(0," + offset + ")";});
+
+      group.transition()
+          .attr("transform", function(d) {  var offset = scaleY(d.age);  return "translate(0," + offset + ")";});
+
+      group.exit().transition()
+          .attr("transform", function(d) { var offset = (data.length - lastData.length) * scaleY.rangeBand();  return "translate(0," + offset + ")" })
+          .remove();
+
+      groupEnter.append("text")
+          .attr("class", "label")
+
+      group.select(".label").transition()
+          .attr("x", margin.left + width + margin.gutter / 2)
+          .attr("y", scaleY.rangeBand() / 2)
+          .text(function(d) { return d.age});
+
+      var maleEnter = groupEnter.append("g")
+          .attr("class", "male")
+          .attr("transform", "translate(" + margin.left +  ",0)");
+
+      maleEnter.append("rect")
           .attr("class", "bar")
-          .attr("x", width)
-          .attr("y", function(d) { return lastData? (lastData.length - data.length) * lastScaleY.rangeBand() : scaleY(d.age);})
-          .attr("width", 0)
           .attr("height", lastScaleY? lastScaleY.rangeBand() : scaleY.rangeBand());
 
-      maleBar.transition()
-          .attr("x", function(d) { return width - scaleX(d.male); })
-          .attr("y", function(d) { return scaleY(d.age); })
-          .attr("width", function(d) { return scaleX(d.male);})
-          .attr("height", scaleY.rangeBand());
+      maleEnter.append("rect")
+          .attr("class", "reference");
 
-      maleBar.exit().transition()
-          .attr("x", width)
-          .attr("y", function(d) { return (data.length - lastData.length) * scaleY.rangeBand(); })
-          .attr("width", 0)
-          .attr("height", scaleY.rangeBand())
-          .remove();
+      maleEnter.append("text")
+          .attr("class", "value");
 
-      var maleValue = maleBars.selectAll(".value")
-          .data(data);
+      var male = group.select(".male")
+          .attr("transform", "translate(" + (margin.left) + ",0)");;
 
-      maleValue.enter().append("text")
-          .attr("class", "value")
-          .attr("x", width)
-          .attr("y", function(d) { return lastData? (lastData.length - data.length) * lastScaleY.rangeBand() + lastScaleY.rangeBand() / 2 : scaleY(d.age) + scaleY.rangeBand() / 2;})
-          .attr("dx", "5");
+      male.select(".bar").transition()
+          .attr("x", function (d) { return width - scaleX(d.male);})
+          .attr("y", referenceBarHeight)
+          .attr("height", barHeight)
+          .attr("width", function (d) { return scaleX(d.male)});
 
-      maleValue.transition()
-          .attr("x", function(d) { return  width - scaleX(d.male); })
-          .attr("y", function(d) { return scaleY(d.age) + scaleY.rangeBand() / 2;})
-          .text(function(d) { return prefix(d.male); });
+      male.select(".value").transition()
+          .attr("x", function (d) { return width - scaleX(d.male);})
+          .attr("y", referenceBarHeight + barHeight / 2)
+          .attr("dx", "5")
+          .text(function (d) { return prefix(d.male)});
 
-      maleValue.exit().transition()
-          .attr("x", width)
-          .attr("y", function(d) { return (data.length - lastData.length) * scaleY.rangeBand();})
-          .remove();
+      if(referenceData) {
+        male.select(".reference").transition()
+            .attr("x", function (d,i) { return width - scaleX(referenceData[i].male);})
+            .attr("height", referenceBarHeight)
+            .attr("width", function (d,i) { return scaleX(referenceData[i].male)});
+      } else {
+        male.select(".reference").transition()
+            .attr("x", width)
+            .attr("height", 0)
+            .attr("width", 0);
+      }
 
       maleAxisX.transition()
           .call(d3.svg.axis()
@@ -163,47 +170,46 @@ function populationPyramid() {
                   .outerTickSize(0)
                   .innerTickSize(height));
 
+      maleLabel.text("Male" + (symbol.length? " (" + symbol + ")" : ""));
 
-      // Female data processing
+      var femaleEnter = groupEnter.append("g")
+          .attr("class", "female")
+          .attr("transform", "translate(" + (margin.left + width + margin.gutter) +  ",0)");
 
-      var femaleBar = femaleBars.selectAll(".bar")
-         .data(data);
-
-      femaleBar.enter().append("rect")
+      femaleEnter.append("rect")
           .attr("class", "bar")
-          .attr("y", function(d) { return lastData? (lastData.length - data.length) * lastScaleY.rangeBand() : scaleY(d.age);})
-          .attr("width", 0)
           .attr("height", lastScaleY? lastScaleY.rangeBand() : scaleY.rangeBand());
 
-      femaleBar.transition()
-          .attr("y", function(d) { return scaleY(d.age); })
-          .attr("width", function(d) { return scaleX(d.female);})
-          .attr("height", scaleY.rangeBand());
+      femaleEnter.append("rect")
+          .attr("class", "reference");
 
-      femaleBar.exit().transition()
-          .attr("x", 0)
-          .attr("y", function(d) { return (data.length - lastData.length) * scaleY.rangeBand(); })
-          .attr("width", 0)
-          .attr("height", scaleY.rangeBand())
-          .remove();
+      femaleEnter.append("text")
+          .attr("class", "value");
 
-      var femaleValue = femaleBars.selectAll(".value")
-          .data(data);
+      var female = group.select(".female")
+          .attr("transform", "translate(" + (margin.left + width + margin.gutter) + ",0)");;
 
-      femaleValue.enter().append("text")
-          .attr("class", "value")
-          .attr("y", function(d) { return lastData? (lastData.length - data.length) * lastScaleY.rangeBand() + lastScaleY.rangeBand() / 2 : scaleY(d.age) + scaleY.rangeBand() / 2;})
-          .attr("dx", "-5");
+      female.select(".bar").transition()
+          .attr("y", referenceBarHeight)
+          .attr("height", barHeight)
+          .attr("width", function (d) { return scaleX(d.female)});
 
-      femaleValue.transition()
-          .attr("x", function(d) { return  scaleX(d.female); })
-          .attr("y", function(d) { return scaleY(d.age) + scaleY.rangeBand() / 2;})
-          .text(function(d) { return prefix(d.female); });
+      female.select(".value").transition()
+          .attr("x", function (d) { return scaleX(d.female);})
+          .attr("y", referenceBarHeight + barHeight / 2)
+          .attr("dx", "-5")
+          .text(function (d) { return prefix(d.female)});
 
-      femaleValue.exit().transition()
-          .attr("x", 0)
-          .attr("y", function(d) { return (data.length - lastData.length) * scaleY.rangeBand();})
-          .remove();
+
+      if (referenceData) {
+        female.select(".reference").transition()
+            .attr("height", referenceBarHeight)
+            .attr("width", function (d,i) { return scaleX(referenceData[i].female)});
+      } else {
+        female.select(".reference").transition()
+            .attr("height", 0)
+            .attr("width", 0);
+      }
 
       femaleAxisX.transition()
           .call(d3.svg.axis()
@@ -222,26 +228,7 @@ function populationPyramid() {
                   .outerTickSize(0)
                   .innerTickSize(height));
 
-
-      // Age groups processing
-
-      var ageGroup = ageGroups.selectAll("text")
-          .data(data);
-
-      ageGroup.enter().append("text")
-          .attr("class", "y axis")
-          .attr("y", function(d) { return lastData? (lastData.length - data.length) * lastScaleY.rangeBand() + lastScaleY.rangeBand() / 2 : scaleY(d.age) + scaleY.rangeBand() / 2;});
-
-      ageGroup.transition()
-          .attr("y", function(d) { return scaleY(d.age) + scaleY.rangeBand() / 2; })
-          .text(function(d) { return d.age; });
-
-      ageGroup.exit().transition()
-          .attr("y", function(d) { return (data.length - lastData.length) * scaleY.rangeBand(); })
-          .remove();
-      var symbol = d3.formatPrefix(scaleX.domain()[1], 0).symbol;
       femaleLabel.text("Female" + (symbol.length? " (" + symbol + ")" : ""));
-      maleLabel.text("Male" + (symbol.length? " (" + symbol + ")" : ""));
 
       lastData = data;
       lastScaleY = scaleY;
