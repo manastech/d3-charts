@@ -1,8 +1,81 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<svg id="chart"></svg>
-<script src="d3.min.js"></script>
-<script src="pie.js"></script>
-<link rel="stylesheet" type="text/css" href="pie.css">
-<link rel="stylesheet" type="text/css" href="colorbrewer.css">
-</script>
+<head>
+  <script src="d3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="pie.js"></script>
+  <link rel="stylesheet" type="text/css" href="pie.css">
+  <link rel="stylesheet" type="text/css" href="colorbrewer.css">
+
+  <script type="text/javascript">
+
+    window.onload = function() {
+      var chart = pieChart();
+      var container = d3.select("#example");
+
+      var type = function(d) {
+        d.population = +d.population;
+        return d;
+      };
+
+      var getAttr = function(attrName) {
+      return $('#'+attrName).val();
+    }
+
+      $('#toggle').on('click', function(evt) {
+        evt.preventDefault();
+        update();
+      });
+
+      $('input[type="range"]').on('change', function() {
+        chart.height(+getAttr('height')).width(+getAttr('width')).redraw();
+      });
+
+      function randomData() {
+        var data = [];
+        var letter = "ABCDEFGHI".split("");
+        var exponent = Math.round(Math.max(1, Math.random() * 10));
+        d3.range(2, 3 + Math.round(Math.random() * 7)).forEach(function(d) {
+          data.push({key:letter[d - 2], value:Math.round(Math.random() * Math.pow(10, exponent))})
+        });
+        var reference = [];
+        data.forEach(function (item) {
+          reference.push({key:item.key,value:Math.round(Math.random() * Math.pow(10, exponent))})
+        })
+        return {data:data, reference:reference};
+      }
+
+      function update() {
+        var data = randomData();
+        if(Math.random() > 0.5) {
+          chart.redraw(data.data, data.reference);
+        } else {
+          chart.redraw(data.data);
+        }
+      }
+      
+      var data = randomData();
+      container.call(chart, data.data, data.reference);
+    };
+  </script>
+</head>
+<body>
+  <h1>Pie chart</h1>
+  <svg id="example"></svg>
+
+  <fieldset style="width: 800px;">
+    <legend>Properties</legend>
+    <p>
+      <label>Height:</label>
+      <input id="height" type="range" min="100" max="1000" value="300"></input>
+    </p>
+    <p>
+      <label>Width:</label>
+      <input id="width" type="range" min="100" max="1000" value="400"></input>
+    </p>
+    <p>
+      <a href="#" id="toggle">Toggle chart dataset</a>
+    </p>
+  </fieldset>
+
+</body>

@@ -1,6 +1,10 @@
-.label {
+.reference {
   font: 10px sans-serif;
-  fill: #fff;
-  text-anchor:middle;
+  fill: #999;
+  text-anchor:left;
   dominant-baseline: middle;
+}
+
+.comparison {
+  opacity:0.5;
 }
