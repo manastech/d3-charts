@@ -1,4 +1,4 @@
-.stackAreaChart .axis text {
+text {
   font: 10px sans-serif;
   fill: #999;
 }
@@ -12,7 +12,6 @@
 
 .stackAreaChart .last-period .label,
 .stackAreaChart .label {
-  font: 10px sans-serif;
   fill: #999;
   dominant-baseline: middle;
 }
@@ -21,31 +20,7 @@
   opacity: 0.6;
 }
 
-.stackAreaChart .data .layer:nth-child(1) {
-  fill:#ff1e00;
-}
-
-.stackAreaChart .data .layer:nth-child(2) {
-  fill:#f89302;
-}
-
-.stackAreaChart .data .layer:nth-child(3) {
-  fill:#a3d215;
-}
-
-.stackAreaChart .data .layer:nth-child(4) {
-  fill:#31bfb0;
-}
-
-.stackAreaChart .data .layer:nth-child(5) {
-  fill:#6a50b2;
-}
-
-.stackAreaChart .data .layer:nth-child(6) {
-  fill:#e4ec05;
-}
-
-.stackAreaChart .last-period .layer {
+.stackAreaChart .reference-data .layer {
   fill:none;
   opacity: 0.6;
   stroke:#000;
@@ -53,7 +28,7 @@
   stroke-dasharray:4,2
 }
 
-.stackAreaChart .last-period .layer text {
+.stackAreaChart .reference-data .layer text {
   fill:#999;
   stroke:none;
 }

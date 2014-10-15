@@ -1,6 +1,6 @@
 function stackChart() {
 
-  var margin = {top: 10, right: 20, bottom: 40, left: 50},
+  var margin = {top: 10, right: 10, bottom: 20, left: 40},
       outerWidth = 400,
       outerHeight = 300,
       width = outerWidth - margin.left - margin.right,
@@ -9,17 +9,18 @@ function stackChart() {
 
   var my = function(selection, d0, rd0) {
 
+    var color = d3.scale.category20();
+
     var container = selection
         .attr('class', 'stackAreaChart');
 
-    var chart = container.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var chart = container.append("g");
 
     var areas = chart.append("g")
         .attr("class", "data");
 
     var lines = chart.append("g")
-        .attr("class", "last-period");
+        .attr("class", "reference-data");
 
     var axisX = chart.append("g")
           .attr("class", "x axis");
@@ -46,65 +47,7 @@ function stackChart() {
 
     var set = 0;
 
-    var references = chart.append("g");
-
-    var dataReferences = references.append("g")
-        .attr("class", "data")
-
-    var maleRef = dataReferences.append("g")
-        .attr("class", "layer");
-
-    maleRef.append("circle")
-        .attr("cy", -refSize / 2)
-        .attr("r", refSize / 2)
-
-    maleRef.append("text")
-        .attr("class", "label")
-        .attr("x", "8")
-        .attr("dy", "-0.35em")
-        .text("Male");
-
-    var femaleRef = dataReferences.append("g")
-        .attr("class", "layer");
-
-    femaleRef.append("circle")
-        .attr("cy", -refSize / 2)
-        .attr("r", refSize / 2)
-
-    femaleRef.append("text")
-        .attr("class", "label")
-        .attr("x", "8")
-        .attr("dy", "-0.35em")
-        .text("Female");
-
-    var unknownRef = dataReferences.append("g")
-        .attr("class", "layer");
-
-    unknownRef.append("circle")
-        .attr("cy", -refSize / 2)
-        .attr("r", refSize / 2)
-
-    unknownRef.append("text")
-        .attr("class", "label")
-        .attr("x", "8")
-        .attr("dy", "-0.35em")
-        .text("Unknown");
-
-    var lastPeriodReferences = references.append("g")
-        .attr("class", "last-period");
-
-    var totalRef = lastPeriodReferences.append("g")
-        .attr("class", "layer");
-
-    totalRef.append("circle")
-        .attr("cy", -refSize / 2)
-        .attr("r", refSize / 2)
-
-    totalRef.append("text")
-        .attr("class", "label")
-        .attr("x", "8")
-        .attr("dy", "-0.35em")
-        .text("Last Period");
+    var references = container.append("g");
 
     var label = chart.append("g")
         .attr("transform", "translate(10,0)")
@@ -114,7 +57,7 @@ function stackChart() {
         .style("text-anchor", "end")
         .style("dominant-baseline", "hanging")
 
-    var data, lastPeriodData;
+    var data, referenceData;
 
     var prefix = function (d) {
       var prefix = d3.formatPrefix(scaleY.domain()[1], 0);
@@ -125,12 +68,45 @@ function stackChart() {
       var path = container.selectAll("path").data(data);
 
       path.enter().append("path")
+          .attr("fill", function (d,i) { return color(i);})
           .attr("class", "layer");
 
       path.transition()
         .attr("d", pathGenerator);
     };
 
+    var drawReferences = function(data, referenceData) {
+      var columns = Object.keys(data[0]).splice(1);
+      
+      var reference = references.selectAll("g").data(columns);
+      
+      var enterReference = reference.enter()
+        .append("g")
+
+      enterReference.append("circle")
+          .attr("r", refSize / 2)
+          .attr("cx", refSize / 2)
+          .attr("fill", function(d,i) { return color(i)});
+
+      enterReference.append("text")
+          .attr("class", "label")
+          .attr("x", refSize + 4)
+          .text(function (d) { return d});
+
+      var x = margin.left,
+          y = refSize;
+
+      enterReference
+        .attr("transform", function (d,i) {
+            var translate = "translate(" + x + "," + y + ")";
+            x += this.getBBox().width + refSize;
+            if(x > margin.left + width) {
+              x =  margin.left;
+              y += refSize * 2;
+            } 
+            return translate;
+          })        
+    }
 
     my.redraw = function(d, rd) {
 
@@ -139,26 +115,26 @@ function stackChart() {
       var data = my.data || d0;
 
       if (arguments.length > 1) my.referenceData = rd;
-      var lastPeriodData = my.referenceData || rd0;
-
+      var referenceData = my.referenceData || rd0;
 
       // Draw based on height and width
+
+      drawReferences(data, referenceData);
+
+      var referencesHeight = references.node().getBBox().height + refSize;
+
+      chart
+        .attr("transform", "translate(" + margin.left + "," + (margin.top + referencesHeight) + ")");
 
       container
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 
       axisX
-          .attr("transform", "translate(0," + height + ")");
+          .attr("transform", "translate(0," + (height - referencesHeight) + ")");
 
       scaleX.range([0, width]);
-      scaleY.range([height, 0]);
-
-      maleRef.attr("transform", "translate(0," + (height + margin.bottom) + ")");
-      femaleRef.attr("transform", "translate(50," + (height + margin.bottom) + ")");
-      unknownRef.attr("transform", "translate(110," + (height + margin.bottom) + ")");
-      totalRef.attr("transform", "translate(175," + (height + margin.bottom) + ")");
-
+      scaleY.range([height - referencesHeight, 0]);
 
       // Draw based on data
 
@@ -172,7 +148,7 @@ function stackChart() {
 
       var lastPeriodLayers = stack(d3.range(columns.length).map(function(i) {
         var key = columns[i];
-        return lastPeriodData.map(function (d) {
+        return referenceData.map(function (d) {
           return {x:d.date, y:d[key]}});
       }));
 
