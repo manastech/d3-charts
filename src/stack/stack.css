@@ -3,6 +3,11 @@ text {
   fill: #999;
 }
 
+.value {
+  font-size: 8px;
+}
+
+.cursor,
 .stackAreaChart .axis path,
 .stackAreaChart .axis line {
   fill: none;

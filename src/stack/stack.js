@@ -28,6 +28,42 @@ function stackChart() {
     var axisY = chart.append("g")
           .attr("class", "y axis");
 
+    var cursor = chart.append("line")
+          .attr("class", "cursor")
+          .attr("visibility", "hidden");
+
+    container.on("mouseout", function(d,i) {
+      cursor.attr("visibility", "hidden");
+      references.selectAll(".value").attr("visibility", "hidden");
+    })
+
+    container.on("mousemove", function(d,i) {
+      var format = d3.format(",");
+      var position = d3.event.x - margin.left;
+      var ticks = scaleX.ticks();
+      var mouseDate = scaleX.invert(position);
+      var visibility = 0 < position && position < width? "visible" : "hidden";
+      var nearestDate;
+      cursor.attr("visibility", visibility);
+      references.selectAll(".value").attr("visibility", visibility);
+      ticks.forEach(function(d) {
+        if(nearestDate == null) {
+          nearestDate = d;
+        } else {
+          if(Math.abs(d - mouseDate) < Math.abs(nearestDate - mouseDate)) {
+            nearestDate = d;
+          }
+        }
+      })
+      var columns = Object.keys(my.data[0]).splice(1);
+      var row = my.data[ticks.indexOf(nearestDate)];
+      references.selectAll(".value").text(function(d,i) {
+        var key = columns[i];
+        return format(row[key]);
+      })
+      cursor.attr("transform", "translate("+ scaleX(nearestDate) + ",0)");
+    });
+
     var scaleX = d3.time.scale();
 
     var scaleY = d3.scale.linear();
@@ -56,8 +92,6 @@ function stackChart() {
         .attr("transform", "rotate(-90)")
         .style("text-anchor", "end")
         .style("dominant-baseline", "hanging")
-
-    var data, referenceData;
 
     var prefix = function (d) {
       var prefix = d3.formatPrefix(scaleY.domain()[1], 0);
@@ -93,16 +127,21 @@ function stackChart() {
           .attr("x", refSize + 4)
           .text(function (d) { return d});
 
+      enterReference.append("text")
+          .attr("class", "value")
+          .attr("x", refSize + 4)
+          .attr("y", refSize + 2);
+
       var x = margin.left,
           y = refSize;
 
       enterReference
         .attr("transform", function (d,i) {
             var translate = "translate(" + x + "," + y + ")";
-            x += this.getBBox().width + refSize;
+            x += this.getBBox().width + refSize * 3;
             if(x > margin.left + width) {
               x =  margin.left;
-              y += refSize * 2;
+              y += refSize * 3;
             } 
             return translate;
           })        
@@ -118,6 +157,7 @@ function stackChart() {
       var referenceData = my.referenceData || rd0;
 
       // Draw based on height and width
+
 
       drawReferences(data, referenceData);
 
@@ -135,6 +175,7 @@ function stackChart() {
 
       scaleX.range([0, width]);
       scaleY.range([height - referencesHeight, 0]);
+      cursor.attr("y2", height - referencesHeight);
 
       // Draw based on data
 
@@ -180,7 +221,7 @@ function stackChart() {
 
     };
 
-    my.redraw();
+    my.redraw(d0, rd0);
 
   };
 
