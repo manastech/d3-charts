@@ -39,7 +39,7 @@ function stackChart() {
 
     container.on("mousemove", function(d,i) {
       var format = d3.format(",");
-      var position = d3.event.x - margin.left;
+      var position = d3.mouse(container.node())[0] - margin.left;
       var ticks = scaleX.ticks();
       var mouseDate = scaleX.invert(position);
       var visibility = 0 < position && position < width? "visible" : "hidden";
